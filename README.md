@@ -58,5 +58,5 @@ Then open the printed URL (usually `http://localhost:5173`) in your browser.
 ## Deployment
 The app is deployed and publicly accessible:
 
-- **Live Demo:** `<your Vercel URL here>`
-- **GitHub Repository:** `<https://github.com/vaibh-vaibh/task-glitch>`
+- **Live Demo:** https://task-glitch-plum.vercel.app/
+- **GitHub Repository:** https://github.com/vaibh-vaibh/task-glitch/
