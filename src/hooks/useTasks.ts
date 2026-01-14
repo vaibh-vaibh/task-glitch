@@ -70,7 +70,6 @@ export function useTasks(): UseTasksState {
   useEffect(() => {
     // STRICTMODE or re-render guard
     if (fetchedRef.current) {
-      console.log('[useTasks] effect skipped, already fetched');
       return;
     }
 
@@ -79,7 +78,6 @@ export function useTasks(): UseTasksState {
     async function load() {
       // extra safety guard
       if (!isMounted || fetchedRef.current) {
-        console.log('[useTasks] load() aborted (isMounted:', isMounted, ', fetchedRef:', fetchedRef.current, ')');
         return;
       }
 
@@ -95,12 +93,6 @@ export function useTasks(): UseTasksState {
         const finalData = normalized.length > 0 ? normalized : generateSalesTasks(50);
 
         if (isMounted) {
-          console.log(
-            'SETTING TASKS ONCE',
-            finalData.length,
-            'LAST DELETED',
-            lastDeleted?.id,
-          );
           setTasks(finalData);
         }
       } catch (e: any) {
@@ -123,21 +115,6 @@ export function useTasks(): UseTasksState {
       isMounted = false;
     };
   }, []); // only for initial load
-
-  // At each render High level logs which is optional
-  useEffect(() => {
-    console.log(
-      'RENDER',
-      'tasks:',
-      tasks.length,
-      'loading:',
-      loading,
-      'error:',
-      error,
-      'lastDeleted:',
-      lastDeleted?.id,
-    );
-  }, [tasks, loading, error, lastDeleted]);
 
   const derivedSorted = useMemo<DerivedTask[]>(() => {
     const withRoi = tasks.map(withDerived);
@@ -170,7 +147,6 @@ export function useTasks(): UseTasksState {
       const status = task.status;
       const completedAt = status === 'Done' ? createdAt : undefined;
       const next = [...prev, { ...task, id, timeTaken, createdAt, completedAt }];
-      console.log('[useTasks] addTask -> count', next.length);
       return next;
     });
   }, []);
@@ -188,7 +164,6 @@ export function useTasks(): UseTasksState {
       const fixed = next.map((t) =>
         t.id === id && (patch.timeTaken ?? t.timeTaken) <= 0 ? { ...t, timeTaken: 1 } : t,
       );
-      console.log('[useTasks] updateTask', id, '-> count', fixed.length);
       return fixed;
     });
   }, []);
@@ -197,16 +172,6 @@ export function useTasks(): UseTasksState {
     setTasks((prev) => {
       const target = prev.find((t) => t.id === id) || null;
       const remaining = prev.filter((t) => t.id !== id);
-      console.log(
-        '[useTasks] deleteTask',
-        id,
-        'deleted:',
-        target?.id,
-        'before:',
-        prev.length,
-        'after:',
-        remaining.length,
-      );
       setLastDeleted(target);
       return remaining;
     });
@@ -214,19 +179,10 @@ export function useTasks(): UseTasksState {
 
   const undoDelete = useCallback(() => {
     if (!lastDeleted) {
-      console.log('[useTasks] undoDelete called but lastDeleted is null');
       return;
     }
     setTasks((prev) => {
       const next = [...prev, lastDeleted];
-      console.log(
-        '[useTasks] undoDelete -> restored',
-        lastDeleted.id,
-        'count before:',
-        prev.length,
-        'after:',
-        next.length,
-      );
       return next;
     });
     setLastDeleted(null);
